@@ -38,7 +38,6 @@ public class Window {
 
 	public void run() {
 		LOGGER.info("Hello LWJGL {} !",Version.getVersion());
-		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
 		init();
 		loop();
