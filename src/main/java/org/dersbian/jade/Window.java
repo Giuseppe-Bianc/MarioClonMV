@@ -22,11 +22,15 @@ public class Window {
 	private String title;
 	private long glfwWindow;
 
+	private float r, g, b, a;
+	private boolean fadeToBlack = false;
+
 	private static  Window window = null;
 	private Window() {
 		this.width = 960;
 		this.height = 540;
 		this.title = "MarioClon";
+		this.r = this.b = this.g = this.a = 1;
 	}
 
 	public static Window get(){
@@ -64,6 +68,11 @@ public class Window {
 		if ( glfwWindow == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 
+		glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
+		glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
+		glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
+		glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+
 
 		glfwMakeContextCurrent(glfwWindow);
 		glfwSwapInterval(1);
@@ -74,13 +83,25 @@ public class Window {
 	}
 
 	private void loop() {
+
 		while ( !glfwWindowShouldClose(glfwWindow) ) {
 			glfwPollEvents();
 
-			glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+			glClearColor(r, g, b, a);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glfwSwapBuffers(glfwWindow); // swap the color buffers
+			if (fadeToBlack) {
+				r = Math.max(r - 0.01f, 0);
+				g = Math.max(g - 0.01f, 0);
+				b = Math.max(b - 0.01f, 0);
+			}
+
+
+			if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+				fadeToBlack = true;
+			}
+
+			glfwSwapBuffers(glfwWindow);
 
 		}
 	}
