@@ -1,6 +1,5 @@
-package org.dersbian;
+import jade.Window;
 
-import org.dersbian.jade.*;
 public class Main {
 	public static void main(String[] args) {
 		Window window = Window.get();

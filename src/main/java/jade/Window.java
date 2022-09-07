@@ -1,4 +1,4 @@
-package org.dersbian.jade;
+package jade;
 
 //lwjgl
 import org.lwjgl.*;
@@ -15,9 +15,6 @@ import static org.lwjgl.system.MemoryUtil.*;
 //log4j
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//jade
-import org.dersbian.jade.util.*;
 
 
 public class Window {
@@ -45,10 +42,12 @@ public class Window {
 			case 0 -> {
 				currentScene = new LevelEditorScene();
 				currentScene.init();
+				currentScene.start();
 			}
 			case 1 -> {
 				currentScene = new LevelScene();
 				currentScene.init();
+				currentScene.start();
 			}
 			default -> {
 				assert false : "Unknown scene '" + newScene + "'";
@@ -57,10 +56,15 @@ public class Window {
 	}
 
 	public static Window get(){
-		if(Window.window == null){
+		if (Window.window == null){
 			Window.window = new Window();
 		}
+
 		return Window.window;
+	}
+
+	public static Scene getScene() {
+		return get().currentScene;
 	}
 
 	public void run() {
@@ -79,8 +83,8 @@ public class Window {
 	private void init() {
 		GLFWErrorCallback.createPrint(System.err).set();
 
-		if ( !glfwInit() )
-			throw new IllegalStateException("Unable to initialize GLFW");
+		if (!glfwInit())
+			throw new IllegalStateException("Unable to initialize GLFW.");
 
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -89,7 +93,7 @@ public class Window {
 
 		glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
 		if ( glfwWindow == NULL )
-			throw new RuntimeException("Failed to create the GLFW window");
+			throw new IllegalStateException("Failed to create the GLFW window.");
 
 		glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
 		glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
@@ -103,11 +107,15 @@ public class Window {
 		glfwShowWindow(glfwWindow);
 
 		GL.createCapabilities();
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 		Window.changeScene(0);
 	}
 
 	public void loop() {
-		float beginTime = Time.getTime();
+		float beginTime = (float)glfwGetTime();
 		float endTime;
 		float dt = -1.0f;
 
@@ -123,7 +131,7 @@ public class Window {
 
 			glfwSwapBuffers(glfwWindow);
 
-			endTime = Time.getTime();
+			endTime = (float)glfwGetTime();
 			dt = endTime - beginTime;
 			beginTime = endTime;
 		}
